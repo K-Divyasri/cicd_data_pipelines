@@ -1,0 +1,63 @@
+# ---------------------------------------------------------------------------
+# CONTINUOUS INTEGRATION
+# Runs on every pull request and every push to main. This is the safety net:
+# if any gate below fails, the PR shows a red X and (with branch protection on)
+# cannot be merged. Read notebook 08 for a line-by-line explanation of this file.
+# ---------------------------------------------------------------------------
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Least privilege: this workflow only needs to read the repo.
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Lint, test, and build
+    runs-on: ubuntu-latest
+
+    # The warehouse path dbt + the ETL share, via the env_var() in profiles.yml.
+    env:
+      WAREHOUSE_DB: warehouse.duckdb
+
+    defaults:
+      run:
+        # All steps run from inside the build/ folder of the repo.
+        working-directory: build
+
+    steps:
+      # actions/checkout grabs your repository onto the runner.
+      # Pinned to a full commit SHA (not @v4) so a compromised tag can't change it.
+      - name: Check out the code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # GATE 1 — clean SQL or fail.
+      - name: Lint SQL with sqlfluff
+        run: sqlfluff lint dbt_sales/models
+
+      # GATE 2 — correct Python (includes the idempotency test).
+      - name: Run pytest
+        run: pytest
+
+      # GATE 3 — produce the warehouse so dbt has data to build on.
+      - name: Run the ETL
+        run: python -m pipeline.etl
+
+      # GATE 4 — models build AND every dbt data test passes.
+      - name: dbt build (run models + tests)
+        run: dbt build --project-dir dbt_sales --profiles-dir dbt_sales

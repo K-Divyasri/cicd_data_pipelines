@@ -1,0 +1,24 @@
+# sqlfluff config — the rules our SQL must obey. CI runs `sqlfluff lint` against
+# this; any violation fails the build.
+[sqlfluff]
+dialect = duckdb
+templater = jinja
+max_line_length = 100
+# Lint only our own models, not generated/target output.
+exclude_rules = structure.column_order, ambiguous.column_references
+
+[sqlfluff:templater:jinja]
+# This is the trick that lets us lint dbt models WITHOUT the heavier dbt templater:
+# it provides ref(), source(), config(), var() as built-in stubs, so {{ ref('x') }}
+# renders to a placeholder instead of erroring out.
+apply_dbt_builtins = true
+
+# Keep keywords lowercase (matches the style used in the models).
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = lower

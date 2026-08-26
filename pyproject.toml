@@ -1,0 +1,7 @@
+# Minimal project config. The important bit is the pytest section: it puts the
+# build/ root on the import path so `from pipeline.transform import ...` works,
+# and points pytest at the tests/ folder.
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

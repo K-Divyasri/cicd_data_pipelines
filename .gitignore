@@ -1,0 +1,19 @@
+# Never commit these.
+.venv/
+__pycache__/
+*.pyc
+
+# Secrets — keep them OUT of git. Commit .env.example instead.
+.env
+
+# The DuckDB warehouse is a build artifact, not source. CI rebuilds it.
+warehouse.duckdb
+*.duckdb.wal
+
+# dbt build output.
+dbt_sales/target/
+dbt_sales/dbt_packages/
+dbt_sales/logs/
+dbt_sales/.user.yml
+logs/
+.pytest_cache/

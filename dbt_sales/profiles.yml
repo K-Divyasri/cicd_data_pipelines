@@ -1,0 +1,15 @@
+# Connection settings. We keep profiles.yml inside the project (instead of the
+# default ~/.dbt/) and pass --profiles-dir dbt_sales so the whole thing is
+# self-contained and CI needs no machine-level setup.
+#
+# The "warehouse.duckdb" file is the same one pipeline/etl.py loads into — dbt
+# reads the raw_sales table the ETL produced and builds models on top of it.
+dbt_sales:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      # path is taken relative to where you RUN dbt. Run dbt from the build/ root
+      # (see scripts/run_checks.py and the README) so this resolves correctly.
+      path: "{{ env_var('WAREHOUSE_DB', 'warehouse.duckdb') }}"
+      threads: 4

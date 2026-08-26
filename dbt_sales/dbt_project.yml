@@ -1,0 +1,18 @@
+# dbt project config. dbt reads this to know where models live and how to build them.
+name: "dbt_sales"
+version: "1.0.0"
+config-version: 2
+
+# which profile (connection settings) to use — defined in profiles.yml
+profile: "dbt_sales"
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  dbt_sales:
+    staging:
+      +materialized: view      # staging models are lightweight views
+    marts:
+      +materialized: table     # marts are real tables you query

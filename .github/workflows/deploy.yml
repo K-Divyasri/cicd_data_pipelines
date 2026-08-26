@@ -1,0 +1,59 @@
+# ---------------------------------------------------------------------------
+# CONTINUOUS DELIVERY
+# Runs only AFTER code lands on main. This is the "CD" half: once changes are
+# merged (and therefore already passed CI), we build the dbt documentation site
+# and publish it to GitHub Pages for free. That's a real, public, hosted artifact
+# you can link from your CV.
+# ---------------------------------------------------------------------------
+name: Deploy dbt docs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:   # adds a manual "Run workflow" button
+
+# Pages deployment needs these permissions.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Don't let two deploys race each other.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    env:
+      WAREHOUSE_DB: warehouse.duckdb
+    defaults:
+      run:
+        working-directory: build
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      # dbt docs need the models to exist, so build the warehouse + run dbt first.
+      - run: python -m pipeline.etl
+      - run: dbt build --project-dir dbt_sales --profiles-dir dbt_sales
+      - run: dbt docs generate --project-dir dbt_sales --profiles-dir dbt_sales
+      - name: Upload docs as a Pages artifact
+        uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
+        with:
+          path: build/dbt_sales/target
+
+  deploy:
+    needs: build-docs           # only deploy after docs are built
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e  # v4.0.5

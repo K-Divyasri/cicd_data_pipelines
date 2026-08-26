@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: sales_by_product
+    description: "Revenue and order counts aggregated per product. Dashboard-ready."
+    columns:
+      - name: product
+        description: "Product name (one row per product)."
+        data_tests:
+          - not_null
+          - unique
+      - name: total_revenue
+        description: "Sum of revenue for the product."
+        data_tests:
+          - not_null
+      - name: n_orders
+        data_tests:
+          - not_null
