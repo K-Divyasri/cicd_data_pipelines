@@ -8,9 +8,10 @@
 name: Deploy dbt docs
 
 on:
-  push:
-    branches: [main]
-  workflow_dispatch:   # adds a manual "Run workflow" button
+  # Manual only. Publishing needs GitHub Pages turned on first (Settings > Pages >
+  # Source: GitHub Actions); until then a push-triggered deploy just fails at the last step.
+  # After enabling Pages, add a push trigger here to publish on every merge.
+  workflow_dispatch:   # the "Run workflow" button
 
 # Pages deployment needs these permissions.
 permissions:
