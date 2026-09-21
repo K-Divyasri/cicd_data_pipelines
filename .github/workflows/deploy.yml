@@ -28,9 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       WAREHOUSE_DB: warehouse.duckdb
-    defaults:
-      run:
-        working-directory: build
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
@@ -45,7 +42,7 @@ jobs:
       - name: Upload docs as a Pages artifact
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa  # v3.0.1
         with:
-          path: build/dbt_sales/target
+          path: dbt_sales/target
 
   deploy:
     needs: build-docs           # only deploy after docs are built

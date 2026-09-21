@@ -2,7 +2,7 @@
 # CONTINUOUS INTEGRATION
 # Runs on every pull request and every push to main. This is the safety net:
 # if any gate below fails, the PR shows a red X and (with branch protection on)
-# cannot be merged. Read notebook 08 for a line-by-line explanation of this file.
+# cannot be merged.
 # ---------------------------------------------------------------------------
 name: CI
 
@@ -24,10 +24,6 @@ jobs:
     env:
       WAREHOUSE_DB: warehouse.duckdb
 
-    defaults:
-      run:
-        # All steps run from inside the build/ folder of the repo.
-        working-directory: build
 
     steps:
       # actions/checkout grabs your repository onto the runner.
