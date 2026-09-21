@@ -1,7 +1,7 @@
 # Pinned so CI and your laptop run the EXACT same versions. Unpinned deps are a
 # classic reason CI "randomly" breaks when a new release lands. Pin everything.
 pandas==2.2.3
-duckdb==1.1.3
+duckdb==1.3.2
 faker==33.1.0
 pytest==8.3.4
 sqlfluff==3.2.5
